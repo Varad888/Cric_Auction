@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MNPL - Season 4</title>
+<style>
+body {
+  text-align: center;
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  animation: bgColorCycle 10s infinite alternate;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f0f0f0;
+}
+
+@keyframes bgColorCycle {
+  0% { background-color: #fff8e1; }
+  25% { background-color: #ffe0b2; }
+  50% { background-color: #fff3e0; }
+  75% { background-color: #fffde7; }
+  100% { background-color: #fff8e1; }
+}
+
+#bhadraLogo {
+  position: fixed;
+  top: 10px;
+  left: 300px;
+  width: 150px;
+  height: auto;
+  z-index: 1100;
+  pointer-events: none;
+}
+
+#sponsorContainer {
+  position: fixed;
+  top: 250px;
+  left: 300px;
+  width: 250px;
+  height: auto;
+  text-align: center;
+  z-index: 1100;
+  background-color: transparent;
+  padding: 5px;
+}
+
+#sponsorContainer h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #333;
+  font-weight: bold;
+  font-family: sans-serif;
+}
+
+#sponsorLogo {
+  max-width: 100%;
+  left: 300;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* ---- Co-Sponsor Section ---- */
+#coSponsorContainer {
+  position: fixed;
+  left: 300px;
+  bottom: 20px;
+  width: 180px;
+  text-align: center;
+  z-index: 1100;
+  background-color: transparent;
+  padding: 5px;
+}
+.coSponsorLogos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.coSponsorLogo {
+  max-width: 70px;
+  height: auto;
+  border-radius: 8px;
+  margin: 0 5px;
+  display: inline-block;
+}
+
+
+#coSponsorContainer h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #333;
+  font-weight: bold;
+  font-family: sans-serif;
+}
+
+.coSponsorLogo {
+  max-width: 80px;
+  height: auto;
+  margin: 5px 12px;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+#logo {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 180px;
+}
+
+canvas {
+  margin-top: 100px;
+  transition: margin-left 0.3s ease;
+  max-width: 90%;
+  max-height: 70vh;
+  width: auto;
+  height: auto;
+}
+
+.controls {
+  position: fixed;
+  top: calc(50% + 90px);
+  right: 20px;
+  transform: translateY(-50%);
+  z-index: 1003;
+}
+
+button {
+  font-size: 16px;
+  padding: 10px 20px;
+  margin: 1px;
+  cursor: pointer;
+  background-color: #05f14f;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
+  width: 100%;
+  max-width: 200px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+button:hover {
+  background-color: #388e3c;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 15px;
+  text-align: center;
+  width: 80vw;
+  height: 80vh;
+  max-width: none;
+  border: 4px solid #ff6600;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-content h2 {
+  font-size: 48px;
+  color: #ff6600;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+#modalPlayerImageContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+  height: 60vh;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+#modalPlayerImage {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  border: 3px solid #ccc;
+  border-radius: 15px;
+  object-fit: contain;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.firework {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  animation: firework-animation 1s forwards;
+}
+
+@keyframes firework-animation {
+  0% { transform: translate(0,0) scale(1); opacity: 1; }
+  50% { transform: translate(var(--x), var(--y)) scale(1.5); opacity: 1; }
+  100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+}
+
+input, select {
+  padding: 15px;
+  margin: 10px;
+  width: 400px;
+  font-size: 20px;
+  border-radius: 8px;
+  border: 2px solid #ccc;
+}
+
+#teamPointsContainer {
+  width: 220px;
+  height: 100%;
+  background-color: rgba(255, 213, 0, 0.168);
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  border-right: 2px solid #ff6600;
+}
+
+#teamPointsDisplay {
+  font-weight: bold;
+  font-size: 18px;
+  padding: 10px;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.team-points {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin: 5px 0;
+}
+
+.team-points div {
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+#mainContent {
+  margin-left: 240px;
+  width: calc(100% - 240px);
+  text-align: center;
+}
+
+#teamPlayersList {
+  list-style: none;
+  padding-left: 0;
+}
+
+#teamPlayersList li {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+#sidebar {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1001;
+  top: 0;
+  left: 0;
+  background-color: #222;
+  overflow-x: hidden;
+  transition: 0.4s;
+  padding-top: 60px;
+  color: white;
+}
+
+#sidebar.active {
+  width: 260px;
+}
+
+#sidebar button {
+  display: block;
+  background: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: left;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#sidebar button:hover {
+  background-color: #575757;
+}
+
+#sidebar .closebtn {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 30px;
+  border: none;
+  background: none;
+  color: white;
+}
+
+.openbtn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  font-size: 20px;
+  background-color: #ff6600;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  z-index: 1002;
+}
+
+#playerListContainer {
+  margin: 10px;
+  padding: 10px;
+  background: #333;
+  border-radius: 10px;
+  max-height: 70%;
+  overflow-y: auto;
+}
+
+#playerListContainer ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+#playerListContainer li {
+  padding: 5px 0;
+  border-bottom: 1px solid #555;
+}
+
+#undoRedoContainer {
+  position: fixed;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1003;
+}
+
+#undoRedoContainer button {
+  width: 100px;
+  background-color: #ff6600;
+}
+
+#undoRedoContainer button:hover {
+  background-color: #e65c00;
+}
+
+.controls button {
+  width: 100px;
+  background-color: #05f14f;
+}
+
+.controls button:hover {
+  background-color: #388e3c;
+}
+</style>
+</head>
+<body>
+
+<!-- Bhadra Group Logo (Top Left) -->
+<img id="bhadraLogo" src="static/B_logo.jpg" alt="Bhadra Group Logo">
+
+<!-- Sponsor Logo and Title (Left side, below Bhadra logo) -->
+<div id="sponsorContainer">
+  <h3>Sponsored By</h3>
+  <img id="sponsorLogo" src="static/Sp_logo.jpeg" alt="Saivalya Sponsor Logo">
+</div>
+
+<!-- Co-Sponsor Logos (Bottom Left) -->
+<div id="coSponsorContainer">
+  <h3>Co-Sponsored By</h3>
+  <div class="coSponsorLogos">
+    <img class="coSponsorLogo" src="static/c1_logo.jpg" alt="Co-Sponsor Logo 1">
+    <img class="coSponsorLogo" src="static/c2_logo.jpg" alt="Co-Sponsor Logo 2">
+  </div>
+</div>
+
+
+<!-- Sidebar -->
+<div id="sidebar">
+  <button class="closebtn" onclick="toggleSidebar()">×</button>
+  <h3 style="text-align:center;">Player Lists</h3>
+  <button onclick="showList('all')">🏏 All Players</button>
+  <button onclick="showList('sold')">💰 Sold Players</button>
+  <button onclick="showList('unsold')">🚫 Unsold Players</button>
+  <button onclick="showAllTeamsPlayers()">🏆 View All Teams</button>
+  <div id="playerListContainer"></div>
+</div>
+
+<!-- Sidebar Toggle Button -->
+<button class="openbtn" onclick="toggleSidebar()">☰ Menu</button>
+
+<div id="teamPointsContainer">
+  <div id="teamPointsDisplay">TEAM POINTS</div>
+  <div class="team-points" id="teamPointsRow"></div>
+</div>
+
+<div id="mainContent">
+  <img id="logo" src="static/Logo.png" alt="MNPL Logo">
+  <h1>BHADRA GROUP PRESENTS</h1>
+  <h1>🏏M N P L - SEASON 4🏏</h1>
+  <canvas id="wheel" width="450" height="500"></canvas>
+  <h2 id="selectedName"></h2>
+
+  <!-- Player Modal -->
+  <div id="playerModal" class="modal">
+    <div class="modal-content">
+      <!-- Logos in Modal -->
+      <img src="static/B_logo.jpg" alt="Bhadra Group Logo" style="position: absolute; top: 20px; left: 20px; width: 120px; height: auto;">
+      <img src="static/Logo.png" alt="MNPL Logo" style="position: absolute; top: 20px; right: 20px; width: 150px; height: auto;">
+      
+      <h2 id="modalPlayerName"></h2>
+      <div style="display: flex; align-items: center; justify-content: center; gap: 30px; width: 100%;">
+        <button id="soldBtn" onclick="markSold()" style="background-color: #05f14f; padding: 20px 30px; font-size: 24px; height: 80px; min-width: 180px; white-space: nowrap;">SOLD</button>
+        <div id="modalPlayerImageContainer">
+          <img id="modalPlayerImage" src="" alt="Player Image">
+        </div>
+        <button id="unsoldBtn" onclick="markUnsold()" style="background-color: #ff0000; padding: 20px 30px; font-size: 24px; height: 80px; min-width: 180px; white-space: nowrap;">UNSOLD</button>
+      </div>
+      <div style="margin-top: 20px; margin-bottom: 30px;">
+        <input type="number" id="bidAmount" placeholder="Enter Bid Points">
+        <select id="teamSelect">
+          <option disabled selected value="">🏏 Select Team</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team Players Modal -->
+  <div id="teamPlayersModal" class="modal">
+    <div class="modal-content" style="width: 400px;">
+      <h2 id="teamPlayersTitle">Team Players</h2>
+      <ul id="teamPlayersList"></ul>
+      <button onclick="closeTeamModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- All Teams Modal -->
+  <div id="allTeamsModal" class="modal">
+    <div class="modal-content" style="width: 400px; max-height: 80%; overflow-y: auto;">
+      <h2>All Teams Players</h2>
+      <div id="allTeamsPlayersList"></div>
+      <button onclick="closeAllTeamsModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="undoRedoContainer">
+  <button id="undoBtn" onclick="undoAction()">Undo</button>
+  <button id="redoBtn" onclick="redoAction()">Redo</button>
+</div>
+
+<div class="controls">
+  <button onclick="spinWheel()" style="width: 180px; white-space: nowrap; padding: 15px 30px; font-size: 18px;">Spin</button>
+</div>
+
+<script>
+let allPlayers = [];
+let availablePlayers = [];
+let unsoldPlayers = [];
+let soldPlayers = [];
+let currentPlayer = null;
+let rotationAngle = 0;
+
+const teams = ["CNA SuperHeroes", "GULLY GANG","FISCAL FALCONS", "AGPS WARRIORS", "RUDRA RANGERS", "SS STRIKERS","BEAN COUNTERS"];
+let teamPoints = {
+  "CNA SuperHeroes": 100000,
+  "GULLY GANG": 100000,
+  "FISCAL FALCONS": 100000,
+  "AGPS WARRIORS": 100000,
+  "RUDRA RANGERS": 100000,
+  "SS STRIKERS": 100000,
+  "BEAN COUNTERS": 100000
+};
+
+
+
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
+const radius = canvas.width / 2;
+
+let actionStack = [];
+let redoStack = [];
+
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("active");
+}
+
+function showList(type) {
+  const container = document.getElementById("playerListContainer");
+  container.innerHTML = "";
+  let listTitle = "";
+  let listData = [];
+
+  if (type === "all") {
+    listTitle = "All Players";
+    listData = allPlayers.map(p => getName(p));
+  } else if (type === "sold") {
+    listTitle = "Sold Players";
+    listData = soldPlayers.map(p => `${p.name} (${p.team} - ${p.bid} pts)`);
+  } else if (type === "unsold") {
+    listTitle = "Unsold Players";
+    listData = unsoldPlayers.map(p => getName(p));
+  }
+
+  container.innerHTML = `<h4>${listTitle}</h4>`;
+  if (listData.length === 0) {
+    container.innerHTML += "<p>No players yet.</p>";
+  } else {
+    const ul = document.createElement("ul");
+    listData.forEach(player => {
+      const li = document.createElement("li");
+      li.textContent = player;
+      ul.appendChild(li);
+    });
+    container.appendChild(ul);
+  }
+}
+
+function populateTeams() {
+  const select = document.getElementById("teamSelect");
+  teams.forEach(team => {
+    const opt = document.createElement("option");
+    opt.value = team;
+    opt.textContent = team;
+    select.appendChild(opt);
+  });
+}
+
+async function fetchPlayers() {
+  const res = await fetch("/players");
+  allPlayers = await res.json();
+  availablePlayers = [...allPlayers];
+  drawWheel();
+}
+
+function drawWheel() {
+  let total = availablePlayers.length;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const colors = ["#4fc3f7", "#81c784", "#ffb74d", "#ba68c8", "#e57373"];
+  for (let i = 0; i < total; i++) {
+    let angle = (i / total) * 2 * Math.PI + rotationAngle;
+    ctx.beginPath();
+    ctx.moveTo(radius, radius);
+    ctx.arc(radius, radius, radius, angle, angle + 2 * Math.PI / total);
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fill();
+    ctx.save();
+    ctx.translate(radius, radius);
+    ctx.rotate(angle + Math.PI / total);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#000";
+    ctx.font = "bold 12px Arial";
+    ctx.fillText(getName(availablePlayers[i]), radius - 10, 0);
+    ctx.restore();
+  }
+}
+
+function updateTeamPointsDisplay() {
+  const display = document.getElementById("teamPointsRow");
+  display.innerHTML = '';
+  Object.entries(teamPoints).forEach(([team, points]) => {
+    const teamDiv = document.createElement("div");
+    teamDiv.innerHTML = `<span style="cursor:pointer; color:#ff6600;" onclick="showTeamPlayers('${team}')">${team}</span>: ${points} pts`;
+    display.appendChild(teamDiv);
+  });
+}
+
+function getName(file) {
+  return file.split(".")[0].replace(/_/g, " ");
+}
+
+function spinWheel() {
+  if (availablePlayers.length === 0 && unsoldPlayers.length > 0) {
+    availablePlayers = [...unsoldPlayers];
+    unsoldPlayers = [];
+    alert("🔁 Starting new cycle with unsold players.");
+    drawWheel();
+  }
+
+  if (availablePlayers.length === 0) {
+    alert("✅ Auction Complete!");
+    return;
+  }
+
+  document.getElementById("soldBtn").style.display = "none";
+  document.getElementById("unsoldBtn").style.display = "none";
+  document.getElementById("selectedName").innerText = "Spinning...";
+
+  let spinIndex = Math.floor(Math.random() * availablePlayers.length);
+  let spinDuration = 550;
+  let rotationSpeed = 0.3;
+
+  let spins = 0;
+  let interval = setInterval(() => {
+    rotationAngle += rotationSpeed;
+    drawWheel();
+    spins++;
+    if (spins > spinDuration / 20) {
+      clearInterval(interval);
+      currentPlayer = availablePlayers[spinIndex];
+      document.getElementById("selectedName").innerText = getName(currentPlayer);
+      document.getElementById("modalPlayerImage").src = "/static/players/" + currentPlayer;
+      showPlayerModal();
+    }
+  }, 20);
+}
+
+function showPlayerModal() {
+  document.getElementById("modalPlayerName").innerText = getName(currentPlayer);
+  document.getElementById("soldBtn").style.display = "inline-block";
+  document.getElementById("unsoldBtn").style.display = "inline-block";
+  document.getElementById("playerModal").style.display = "flex";
+  document.getElementById("bidAmount").value = "";
+  document.getElementById("teamSelect").value = "";
+}
+
+function closeModal() {
+  document.getElementById("playerModal").style.display = "none";
+}
+
+function markSold() {
+  const bid = parseInt(document.getElementById("bidAmount").value);
+  const team = document.getElementById("teamSelect").value;
+
+  if (!bid || !team) {
+    alert("⚠️ Please enter bid amount and select a team.");
+    return;
+  }
+
+  if (bid > teamPoints[team]) {
+    alert("❌ Team doesn't have enough points.");
+    return;
+  }
+
+  const playerInfo = {
+    name: getName(currentPlayer),
+    file: currentPlayer,
+    bid: bid,
+    team: team
+  };
+
+  availablePlayers = availablePlayers.filter(p => p !== currentPlayer);
+  soldPlayers.push(playerInfo);
+  teamPoints[team] -= bid;
+  updateTeamPointsDisplay();
+
+  actionStack.push({type:'sold', player: playerInfo});
+  redoStack = [];
+
+  triggerFireworks();
+  resetSelection(`✅ SOLD to ${team} for ${bid} pts`);
+  closeModal();
+}
+
+function markUnsold() {
+  availablePlayers = availablePlayers.filter(p => p !== currentPlayer);
+  unsoldPlayers.push(currentPlayer);
+
+  actionStack.push({type:'unsold', player: currentPlayer});
+  redoStack = [];
+
+  resetSelection("❌ Marked as UNSOLD");
+  closeModal();
+}
+
+function triggerFireworks() {
+  const container = document.getElementById("modalPlayerImageContainer");
+  const colors = ["#ff0000", "#ff6600", "#ffff00", "#00ff00", "#00ffff", "#ff00ff"];
+
+  for (let i = 0; i < 20; i++) {
+    const firework = document.createElement("div");
+    firework.classList.add("firework");
+    firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    firework.style.setProperty("--x", (Math.random()*200-100) + "px");
+    firework.style.setProperty("--y", (Math.random()*200-100) + "px");
+    container.appendChild(firework);
+
+    setTimeout(() => { firework.remove(); }, 3000);
+  }
+}
+
+function resetSelection(msg) {
+  document.getElementById("selectedName").innerText = msg;
+  document.getElementById("soldBtn").style.display = "none";
+  document.getElementById("unsoldBtn").style.display = "none";
+  drawWheel();
+}
+
+function showTeamPlayers(teamName) {
+  const teamPlayersList = document.getElementById("teamPlayersList");
+  const modalTitle = document.getElementById("teamPlayersTitle");
+  teamPlayersList.innerHTML = '';
+  modalTitle.innerText = `Players in ${teamName}`;
+
+  const players = soldPlayers.filter(p => p.team === teamName);
+  if (players.length === 0) {
+    teamPlayersList.innerHTML = '<li>No players purchased yet.</li>';
+  } else {
+    players.forEach(player => {
+      const li = document.createElement("li");
+      li.textContent = `${player.name} - ${player.bid} pts`;
+      teamPlayersList.appendChild(li);
+    });
+  }
+
+  document.getElementById("teamPlayersModal").style.display = "flex";
+}
+
+function closeTeamModal() {
+  document.getElementById("teamPlayersModal").style.display = "none";
+}
+
+function showAllTeamsPlayers() {
+  const container = document.getElementById("allTeamsPlayersList");
+  container.innerHTML = '';
+  teams.forEach(team => {
+    const div = document.createElement("div");
+    div.innerHTML = `<strong>${team}</strong>`;
+    const players = soldPlayers.filter(p => p.team === team);
+    if (players.length === 0) {
+      div.innerHTML += '<p>No players purchased</p>';
+    } else {
+      const ul = document.createElement("ul");
+      players.forEach(p => {
+        const li = document.createElement("li");
+        li.textContent = `${p.name} - ${p.bid} pts`;
+        ul.appendChild(li);
+      });
+      div.appendChild(ul);
+    }
+    container.appendChild(div);
+  });
+  document.getElementById("allTeamsModal").style.display = "flex";
+}
+
+function closeAllTeamsModal() {
+  document.getElementById("allTeamsModal").style.display = "none";
+}
+
+function undoAction() {
+  if(actionStack.length === 0) return;
+  const lastAction = actionStack.pop();
+  redoStack.push(lastAction);
+
+  if(lastAction.type === 'sold'){
+    soldPlayers = soldPlayers.filter(p => p !== lastAction.player);
+    availablePlayers.push(lastAction.player.file);
+    teamPoints[lastAction.player.team] += lastAction.player.bid;
+  } else if(lastAction.type === 'unsold'){
+    unsoldPlayers = unsoldPlayers.filter(p => p !== lastAction.player);
+    availablePlayers.push(lastAction.player);
+  }
+  updateTeamPointsDisplay();
+  drawWheel();
+}
+
+function redoAction() {
+  if(redoStack.length === 0) return;
+  const action = redoStack.pop();
+  actionStack.push(action);
+
+  if(action.type === 'sold'){
+    soldPlayers.push(action.player);
+    availablePlayers = availablePlayers.filter(p => p !== action.player.file);
+    teamPoints[action.player.team] -= action.player.bid;
+    triggerFireworks();
+  } else if(action.type === 'unsold'){
+    unsoldPlayers.push(action.player);
+    availablePlayers = availablePlayers.filter(p => p !== action.player);
+  }
+  updateTeamPointsDisplay();
+  drawWheel();
+}
+
+populateTeams();
+fetchPlayers();
+updateTeamPointsDisplay();
+
+</script>
+
+</body>
+</html>
