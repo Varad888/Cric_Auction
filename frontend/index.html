@@ -509,6 +509,8 @@ let teamPoints = {
   "BEAN COUNTERS": 100000
 };
 
+
+
 const canvas = document.getElementById("wheel");
 const ctx = canvas.getContext("2d");
 const radius = canvas.width / 2;
@@ -516,12 +518,10 @@ const radius = canvas.width / 2;
 let actionStack = [];
 let redoStack = [];
 
-// ---- Sidebar Toggle ----
 function toggleSidebar() {
   document.getElementById("sidebar").classList.toggle("active");
 }
 
-// ---- Player Lists ----
 function showList(type) {
   const container = document.getElementById("playerListContainer");
   container.innerHTML = "";
@@ -553,7 +553,6 @@ function showList(type) {
   }
 }
 
-// ---- Populate Teams Dropdown ----
 function populateTeams() {
   const select = document.getElementById("teamSelect");
   teams.forEach(team => {
@@ -564,41 +563,17 @@ function populateTeams() {
   });
 }
 
-// ---- Fetch Players from Backend ----
 async function fetchPlayers() {
-  try {
-    const res = await fetch("/players");
-    const data = await res.json();
-    console.log("Players fetched:", data);
-
-    if (!data || data.length === 0) {
-      alert("No players received from server!");
-      return;
-    }
-
-    allPlayers = data;
-    availablePlayers = [...allPlayers];
-    drawWheel();
-  } catch (err) {
-    console.error(err);
-    alert("Failed to load players from server");
-  }
+  const res = await fetch("/players");
+  allPlayers = await res.json();
+  availablePlayers = [...allPlayers];
+  drawWheel();
 }
 
-// ---- Draw Wheel ----
 function drawWheel() {
+  let total = availablePlayers.length;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  if (!availablePlayers || availablePlayers.length === 0) {
-    ctx.font = "20px Arial";
-    ctx.fillStyle = "#000";
-    ctx.fillText("No Players Available", 120, 200);
-    return;
-  }
-
-  const total = availablePlayers.length;
   const colors = ["#4fc3f7", "#81c784", "#ffb74d", "#ba68c8", "#e57373"];
-
   for (let i = 0; i < total; i++) {
     let angle = (i / total) * 2 * Math.PI + rotationAngle;
     ctx.beginPath();
@@ -617,7 +592,6 @@ function drawWheel() {
   }
 }
 
-// ---- Team Points Display ----
 function updateTeamPointsDisplay() {
   const display = document.getElementById("teamPointsRow");
   display.innerHTML = '';
@@ -628,18 +602,11 @@ function updateTeamPointsDisplay() {
   });
 }
 
-// ---- Helpers ----
 function getName(file) {
   return file.split(".")[0].replace(/_/g, " ");
 }
 
-// ---- Spin Wheel ----
 function spinWheel() {
-  if (!availablePlayers || availablePlayers.length === 0) {
-    alert("No players available to spin!");
-    return;
-  }
-
   if (availablePlayers.length === 0 && unsoldPlayers.length > 0) {
     availablePlayers = [...unsoldPlayers];
     unsoldPlayers = [];
@@ -659,8 +626,8 @@ function spinWheel() {
   let spinIndex = Math.floor(Math.random() * availablePlayers.length);
   let spinDuration = 550;
   let rotationSpeed = 0.3;
-  let spins = 0;
 
+  let spins = 0;
   let interval = setInterval(() => {
     rotationAngle += rotationSpeed;
     drawWheel();
@@ -675,7 +642,6 @@ function spinWheel() {
   }, 20);
 }
 
-// ---- Player Modal ----
 function showPlayerModal() {
   document.getElementById("modalPlayerName").innerText = getName(currentPlayer);
   document.getElementById("soldBtn").style.display = "inline-block";
@@ -685,30 +651,55 @@ function showPlayerModal() {
   document.getElementById("teamSelect").value = "";
 }
 
-// ---- Mark Sold ----
-window.markSold = function () {
-    console.log("SOLD clicked");
+function closeModal() {
+  document.getElementById("playerModal").style.display = "none";
+}
 
-    if (!selectedPlayer) return;
+function markSold() {
+  const bid = parseInt(document.getElementById("bidAmount").value);
+  const team = document.getElementById("teamSelect").value;
 
-    selectedPlayer.status = "sold";
-    updateUI();
-};
+  if (!bid || !team) {
+    alert("⚠️ Please enter bid amount and select a team.");
+    return;
+  }
 
-window.markUnsold = function () {
-    console.log("UNSOLD clicked");
+  if (bid > teamPoints[team]) {
+    alert("❌ Team doesn't have enough points.");
+    return;
+  }
 
-    if (!selectedPlayer) return;
+  const playerInfo = {
+    name: getName(currentPlayer),
+    file: currentPlayer,
+    bid: bid,
+    team: team
+  };
 
-    selectedPlayer.status = "unsold";
-    updateUI();
-};
+  availablePlayers = availablePlayers.filter(p => p !== currentPlayer);
+  soldPlayers.push(playerInfo);
+  teamPoints[team] -= bid;
+  updateTeamPointsDisplay();
 
+  actionStack.push({type:'sold', player: playerInfo});
+  redoStack = [];
 
-// ---- Mark Unsold ----
+  triggerFireworks();
+  resetSelection(`✅ SOLD to ${team} for ${bid} pts`);
+  closeModal();
+}
 
+function markUnsold() {
+  availablePlayers = availablePlayers.filter(p => p !== currentPlayer);
+  unsoldPlayers.push(currentPlayer);
 
-// ---- Fireworks ----
+  actionStack.push({type:'unsold', player: currentPlayer});
+  redoStack = [];
+
+  resetSelection("❌ Marked as UNSOLD");
+  closeModal();
+}
+
 function triggerFireworks() {
   const container = document.getElementById("modalPlayerImageContainer");
   const colors = ["#ff0000", "#ff6600", "#ffff00", "#00ff00", "#00ffff", "#ff00ff"];
@@ -725,7 +716,6 @@ function triggerFireworks() {
   }
 }
 
-// ---- Reset Selection ----
 function resetSelection(msg) {
   document.getElementById("selectedName").innerText = msg;
   document.getElementById("soldBtn").style.display = "none";
@@ -733,7 +723,92 @@ function resetSelection(msg) {
   drawWheel();
 }
 
-// ---- Initialize ----
+function showTeamPlayers(teamName) {
+  const teamPlayersList = document.getElementById("teamPlayersList");
+  const modalTitle = document.getElementById("teamPlayersTitle");
+  teamPlayersList.innerHTML = '';
+  modalTitle.innerText = `Players in ${teamName}`;
+
+  const players = soldPlayers.filter(p => p.team === teamName);
+  if (players.length === 0) {
+    teamPlayersList.innerHTML = '<li>No players purchased yet.</li>';
+  } else {
+    players.forEach(player => {
+      const li = document.createElement("li");
+      li.textContent = `${player.name} - ${player.bid} pts`;
+      teamPlayersList.appendChild(li);
+    });
+  }
+
+  document.getElementById("teamPlayersModal").style.display = "flex";
+}
+
+function closeTeamModal() {
+  document.getElementById("teamPlayersModal").style.display = "none";
+}
+
+function showAllTeamsPlayers() {
+  const container = document.getElementById("allTeamsPlayersList");
+  container.innerHTML = '';
+  teams.forEach(team => {
+    const div = document.createElement("div");
+    div.innerHTML = `<strong>${team}</strong>`;
+    const players = soldPlayers.filter(p => p.team === team);
+    if (players.length === 0) {
+      div.innerHTML += '<p>No players purchased</p>';
+    } else {
+      const ul = document.createElement("ul");
+      players.forEach(p => {
+        const li = document.createElement("li");
+        li.textContent = `${p.name} - ${p.bid} pts`;
+        ul.appendChild(li);
+      });
+      div.appendChild(ul);
+    }
+    container.appendChild(div);
+  });
+  document.getElementById("allTeamsModal").style.display = "flex";
+}
+
+function closeAllTeamsModal() {
+  document.getElementById("allTeamsModal").style.display = "none";
+}
+
+function undoAction() {
+  if(actionStack.length === 0) return;
+  const lastAction = actionStack.pop();
+  redoStack.push(lastAction);
+
+  if(lastAction.type === 'sold'){
+    soldPlayers = soldPlayers.filter(p => p !== lastAction.player);
+    availablePlayers.push(lastAction.player.file);
+    teamPoints[lastAction.player.team] += lastAction.player.bid;
+  } else if(lastAction.type === 'unsold'){
+    unsoldPlayers = unsoldPlayers.filter(p => p !== lastAction.player);
+    availablePlayers.push(lastAction.player);
+  }
+  updateTeamPointsDisplay();
+  drawWheel();
+}
+
+function redoAction() {
+  if(redoStack.length === 0) return;
+  const action = redoStack.pop();
+  actionStack.push(action);
+
+  if(action.type === 'sold'){
+    soldPlayers.push(action.player);
+    availablePlayers = availablePlayers.filter(p => p !== action.player.file);
+    teamPoints[action.player.team] -= action.player.bid;
+    triggerFireworks();
+  } else if(action.type === 'unsold'){
+    unsoldPlayers.push(action.player);
+    availablePlayers = availablePlayers.filter(p => p !== action.player);
+  }
+  updateTeamPointsDisplay();
+  drawWheel();
+}
+
 populateTeams();
 fetchPlayers();
 updateTeamPointsDisplay();
