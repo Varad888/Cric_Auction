@@ -124,3 +124,8 @@ def get_players(request: Request):
         raise HTTPException(status_code=401)
 
     return os.listdir("static/players")
+
+@app.get("/players")
+def get_players():
+    folder = os.path.join(BASE_DIR, "static", "Players")
+    return os.listdir(folder)
