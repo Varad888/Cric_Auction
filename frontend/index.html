@@ -818,6 +818,13 @@ window.onload = function () {
   populateTeams();
   updateTeamPointsDisplay();
   fetchPlayers();
+  fetch("/players")
+    .then(res => res.json())
+    .then(players => {
+      console.log(players);
+      buildWheel(players);
+    });
+
 };
 
 </script>
