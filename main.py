@@ -10,24 +10,6 @@ app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.get("/players")
-def get_players():
-    folder = "static/players"
-    files = os.listdir(folder)
-
-    players = []
-    for f in files:
-        if f.lower().endswith((".jpg", ".png", ".jpeg", ".webp")):
-            name = os.path.splitext(f)[0]  # filename without extension
-            players.append({
-                "name": name,
-                "img": f"/static/players/{f}"
-            })
-
-    return players
-
-
-
 @app.get("/")
 def home():
     return FileResponse("frontend/index.html")
