@@ -3,8 +3,13 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 import os
+from fastapi.responses import FileResponse
 
 app = FastAPI()
+
+@app.get("/")
+def home():
+    return FileResponse("frontend/index.html")
 
 # Session middleware (for login)
 app.add_middleware(SessionMiddleware, secret_key="supersecretkey")
