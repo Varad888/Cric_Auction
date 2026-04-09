@@ -813,6 +813,12 @@ populateTeams();
 fetchPlayers();
 updateTeamPointsDisplay();
 
+window.onload = function () {
+  populateTeams();
+  updateTeamPointsDisplay();
+  fetchPlayers();
+};
+
 </script>
 
 </body>
