@@ -6,13 +6,14 @@ import os
 from fastapi.responses import FileResponse
 
 
-app = FastAPI()
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount(
+    "/static",
+    StaticFiles(directory=os.path.join(BASE_DIR, "static")),
+    name="static"
+)
 
-@app.get("/")
-def home():
-    return FileResponse("frontend/index.html")
 
 # Session middleware (for login)
 app.add_middleware(SessionMiddleware, secret_key="supersecretkey")
@@ -128,7 +129,7 @@ def delete_user(request: Request, username: str = Form(...)):
 # ---------------- PLAYERS API ---------------- #
 @app.get("/players")
 def get_players():
-    folder = "static/Players"
+    folder = os.path.join(BASE_DIR, "static", "Players")
 
     try:
         # 🔥 Debug print (check Railway logs)
