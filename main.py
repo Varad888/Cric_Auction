@@ -3,19 +3,14 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 import os
-from fastapi.responses import FileResponse
 
-app = fastapi()
+app = FastAPI()
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
+# Session middleware (for login)
 app.add_middleware(SessionMiddleware, secret_key="supersecretkey")
 
-app.mount(
-    "/static",
-    StaticFiles(directory=os.path.join(BASE_DIR, "static")),
-    name="static"
-)
+# Static files (images, players)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # ---------------- USERS ---------------- #
 users_db = {
@@ -125,7 +120,7 @@ def delete_user(request: Request, username: str = Form(...)):
 # ---------------- PLAYERS API ---------------- #
 @app.get("/players")
 def get_players():
-    folder = os.path.join(BASE_DIR, "static", "Players")
+    folder = "static/Players"
 
     try:
         # 🔥 Debug print (check Railway logs)
