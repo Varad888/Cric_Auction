@@ -564,7 +564,7 @@ function populateTeams() {
 }
 
 async function fetchPlayers() {
-  const res = await fetch("/players");
+ fetch(window.location.origin + "/players")
   allPlayers = await res.json();
   availablePlayers = [...allPlayers];
 
