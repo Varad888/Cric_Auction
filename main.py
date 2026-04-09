@@ -10,7 +10,7 @@ app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="supersecretkey")
 
 # Static files (images, players)
-app.mount("/static/Players", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # ---------------- USERS ---------------- #
 users_db = {
