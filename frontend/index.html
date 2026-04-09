@@ -564,12 +564,14 @@ function populateTeams() {
 }
 
 async function fetchPlayers() {
- fetch(window.location.origin + "/players")
+  const res = await fetch("/players");
   allPlayers = await res.json();
   availablePlayers = [...allPlayers];
 
   drawWheel();   // 🔥 MUST be inside here
 }
+
+
 
 function drawWheel() {
   let total = availablePlayers.length;
@@ -642,6 +644,7 @@ function spinWheel() {
     }
   }, 20);
 }
+
 
 function showPlayerModal() {
   document.getElementById("modalPlayerName").innerText = getName(currentPlayer);
@@ -813,13 +816,6 @@ function redoAction() {
 populateTeams();
 fetchPlayers();
 updateTeamPointsDisplay();
-
-window.onload = function () {
-  populateTeams();
-  updateTeamPointsDisplay();
-  fetchPlayers();
-  
-};
 
 </script>
 
