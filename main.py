@@ -5,20 +5,17 @@ from starlette.middleware.sessions import SessionMiddleware
 import os
 from fastapi.responses import FileResponse
 
+app = fastapi()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+app.add_middleware(SessionMiddleware, secret_key="supersecretkey")
 
 app.mount(
     "/static",
     StaticFiles(directory=os.path.join(BASE_DIR, "static")),
     name="static"
 )
-
-
-# Session middleware (for login)
-app.add_middleware(SessionMiddleware, secret_key="supersecretkey")
-
-
 
 # ---------------- USERS ---------------- #
 users_db = {
