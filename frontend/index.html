@@ -567,7 +567,8 @@ async function fetchPlayers() {
   const res = await fetch("/players");
   allPlayers = await res.json();
   availablePlayers = [...allPlayers];
-  drawWheel();
+
+  drawWheel();   // 🔥 MUST be inside here
 }
 
 function drawWheel() {
