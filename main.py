@@ -18,8 +18,7 @@ app.mount(
 # Session middleware (for login)
 app.add_middleware(SessionMiddleware, secret_key="supersecretkey")
 
-# Static files (images, players)
-app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 # ---------------- USERS ---------------- #
 users_db = {
